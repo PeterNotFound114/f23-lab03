@@ -12,7 +12,6 @@ import java.util.Scanner;
 
 import static org.junit.Assert.*;
 
-
 /**
  * TODO: Write more unit tests to test the implementation of ArrayIntQueue
  * for the {@link LinkedIntQueue} and
@@ -26,6 +25,7 @@ public class IntQueueTest {
 
     private IntQueue mQueue;
     private List<Integer> testList;
+    private List<Integer> testListLarge;
 
     /**
      * Called before each test.
@@ -33,10 +33,14 @@ public class IntQueueTest {
     @Before
     public void setUp() {
         // comment/uncomment these lines to test each class
-        mQueue = new LinkedIntQueue();
-//        mQueue = new ArrayIntQueue();
+        // mQueue = new LinkedIntQueue();
+        mQueue = new ArrayIntQueue();
 
         testList = new ArrayList<>(List.of(1, 2, 3));
+        testListLarge = new ArrayList<>(List.of());
+        for (int i = 0; i < 100; i++) {
+            testListLarge.add(1000 - i * 3);
+        }
     }
 
     @Test
@@ -81,6 +85,22 @@ public class IntQueueTest {
     }
 
     @Test
+    public void testClear() {
+        for (int i = 0; i < testList.size(); i++) {
+            mQueue.enqueue(testList.get(i));
+        }
+        mQueue.clear();
+        assertEquals(0, mQueue.size());
+        assertNull(mQueue.peek());
+        assertTrue(mQueue.isEmpty());
+    }
+
+    @Test
+    public void testDequeueEmpty() {
+        assertNull(mQueue.dequeue());
+    }
+
+    @Test
     public void testContent() throws IOException {
         InputStream in = new FileInputStream("src/test/resources/data.txt");
         try (Scanner scanner = new Scanner(in)) {
@@ -100,5 +120,17 @@ public class IntQueueTest {
         }
     }
 
-
+    @Test
+    public void ensureCapacityTest() {
+        mQueue.clear();
+        for (int i = 0; i < testListLarge.size(); i++) {
+            mQueue.enqueue(testListLarge.get(i));
+            assertEquals(testListLarge.get(0), mQueue.peek());
+            assertEquals(i + 1, mQueue.size());
+        }
+        for (int j = 0; j < testListLarge.size(); j++) {
+            assertEquals(testListLarge.get(j), mQueue.dequeue());
+            assertEquals(testListLarge.size() - j - 1, mQueue.size());
+        }
+    }
 }
